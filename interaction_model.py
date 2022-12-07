@@ -1,11 +1,14 @@
 from typing import List
+import pyvis.network
 
-class Node():    
-    def __init__(self, adjacent: List[Node]) -> None:
+class Node():
+    def __init__(self, adjacent) -> None:
         self.adjacent = adjacent
         self.blocked = []
 
 class Graph():
+
+    # nodes: 
     def __init__(self, nodes: dict):
         self.blocked_edges = {}
         self.score = 0

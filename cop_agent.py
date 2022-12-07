@@ -12,4 +12,7 @@ class CopBasic():
         options = self.graph.nodes[self.pos].adjacent
 
         self.pos = random.choice(options)
+
+    def find_corners(self):
+        pass
         
