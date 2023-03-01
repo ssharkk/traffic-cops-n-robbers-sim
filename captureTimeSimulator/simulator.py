@@ -3,14 +3,32 @@ import networkx as nx
 
 def simulate(G):
     escape_G = G.copy()
+    # pick cop position
     cop_pos = 0
     results = []
+
+    #TODO: find "ideal" robber position - largest depth, for comparison of results
+
+
+    # pick robber position
     for robber_pos in range(len(G)):
         if robber_pos == cop_pos: continue
+        # simulate gameplay
         result = simulate_nonconsec(G, escape_G, cop_pos, robber_pos)
         results.append(result["worst_capture_time"])
         print(" ;", results[-1], end="")
     result_a = "No consecutive roadblocks result:", sum(results) / len(G)
+    escape_G = G.copy()
+
+    print("### next ###")
+    results = []
+    roadblocks_max = 1
+    for robber_pos in range(len(G)):
+        if robber_pos == cop_pos: continue
+        result = simulate_nonconsec(G, escape_G, cop_pos, robber_pos, roadblocks_max)
+        results.append(result["worst_capture_time"])
+        print(" ;", results[-1], end="")
+    result_b = f"No consecutive upto { roadblocks_max } roadblocks result:", sum(results) / len(G)
     escape_G = G.copy()
 
     print("### next ###")
@@ -22,14 +40,16 @@ def simulate(G):
         results.append(result["worst_capture_time"])
         print(" ;", results[-1], end="")
     print()
-    result_b = "No consecutive roadblocks result:", sum(results) / len(G)
+    # result_c = "No consecutive roadblocks result:", sum(results) / len(G)
 
     print(*result_a)
+    print(*result_b)
     print("No roadblocks: ", sum(results) / len(G))
 
 
 def simulate_nonconsec(G, escape_G, cop_pos=0, robber_pos=0, blocks=-1,
         removed_edges = []):
+    # print("blocks = ", blocks)
     escape_G = escape_G.copy()
     removed_edges = removed_edges.copy()
     worst_capture_time = 0
@@ -79,7 +99,7 @@ n = 13
 print(f"random_tree({ n })")
 simulate(nx.random_tree(n))
 
-n = 50
+n = 30
 print(f"random_tree({ n })")
 simulate(nx.random_tree(n))
 
