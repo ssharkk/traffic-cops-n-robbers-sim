@@ -36,11 +36,19 @@ draw_config = {
 }
 
 G = nx.Graph()
+G = nx.random_regular_graph(3, 24)
+for i in range(20):
+    G = graph_generate.make_merged_graph(G, nx.fast_gnp_random_graph(24, 0.08))
+    # G = graph_generate.make_merged_graph(G, nx.grid_2d_graph(5, 6, 1+i))
+
+
+# G.add_nodes_from(nx.fast_gnp_random_graph(24, 0.5).nodes(data=True))
 ######## GRAPH TOPOLOGY ########
 # graph_generate.sample(G)
 # graph_generate.create_clique(G, 9)
 # graph_generate.create_clique(G, 9)
-graph_generate.create_path(G, 9, True)
+# G =
+# graph_generate.create_path(G, 9, True)
 # graph_generate.create_grid_square(G, 5, 5, 1)
 # G.remove_edge(7, 2)
 # G.remove_edge(8, 2)
@@ -50,7 +58,19 @@ G.add_edge(14, 16)
 # G.add_edge(1, 25)
 # graph_generate.create_grid_hex(G, 7, 4)
 graph_generate.find_corners(G)
+graph_generate.graph_discard_dismantlable_nodes(G)
 
+
+
+from tulip import tlp
+params = tlp.getDefaultPluginParameters('Planar Graph')
+tlp_graph = tlp.importGraph('Planar Graph', params)
+G = nx.Graph()
+for n in tlp_graph.getNodes():
+    G.add_node(n)
+for e in tlp_graph.getEdges():
+    G.add_edge(tlp_graph.source(e), tlp_graph.target(e))
+print(G)
 
 ######## LAYOUTS ########
 # pos_layout = nx.shell_layout(G)
@@ -58,16 +78,18 @@ graph_generate.find_corners(G)
 # pos_layout = nx.spring_layout(G)
 # pos_layout = nx.spring_layout(G, scale=0.1, k=0.01)
 # pos_layout = nx.fruchterman_reingold_layout(G, seed=1)
-# pos_layout = nx.planar_layout(G)
+pos_layout = nx.planar_layout(G)
 # pos_layout = nx.spring_layout(G, pos=pos_layout, iterations=1250)
-# pos_layout = nx.fruchterman_reingold_layout(G, seed=1, pos=pos_layout, iterations=1500)
-pos_layout = nx.fruchterman_reingold_layout(G, seed=1, iterations=500)
+print(pos_layout)
+
+pos_layout = nx.fruchterman_reingold_layout(G, seed=1, pos=pos_layout, iterations=1500)
+# pos_layout = nx.fruchterman_reingold_layout(G, seed=1, iterations=250)
 
 
 # Animation funciton
 def animate(event):
     global G
-    # colors = ['r', 'b', 'g', 'y', 'w', 'm']
+    colors = ['r', 'b', 'g', 'y', 'w', 'm']
     colors = ['y', 'w']
     # nx.draw_circular(G, node_color=[random.choice(colors) for j in range(9)])
     # nx.draw_kamada_kawai(G, node_color=[random.choice(colors) for j in range(9)])

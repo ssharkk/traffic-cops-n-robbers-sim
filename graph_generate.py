@@ -1,6 +1,13 @@
 from interaction_model import *
 import networkx as nx
 
+def make_merged_graph(G: nx.Graph, H: nx.Graph):
+    U=nx.Graph()
+    U.add_edges_from(list(G.edges(data=True)) + list(H.edges(data=True)))
+    U.add_nodes_from(list(G.nodes(data=True)) + list(H.nodes(data=True)))
+    return nx.disjoint_union(G, H)
+    # return U
+
 def make_new_nodes(G: nx.Graph, n=5):
     first_new_node = G.number_of_nodes()+1
     new_nodes = [first_new_node+i for i in range(n)]
@@ -13,11 +20,16 @@ def create_clique(G: nx.Graph, n=5):
     return new_nodes
 
 def create_path(G: nx.Graph, n=5, loop=False):
-    new_nodes = make_new_nodes(G, n)
-    G.add_edges_from([(new_nodes[i], new_nodes[i-1]) for i in range(1, len(new_nodes))])
+    new_nodes = nx.path_graph(n)
+
+    # new_nodes = make_new_nodes(G, n)
+    # G.add_edges_from([(new_nodes[i], new_nodes[i-1]) for i in range(1, len(new_nodes))])
     if loop:
-        G.add_edge(new_nodes[0], new_nodes[-1])
-    return new_nodes
+        # G.add_edge(new_nodes[0], new_nodes[-1])
+        new_nodes.add_edge(0, n-1)
+    # G =
+    return G.update(new_nodes)
+    # return new_nodes
 
 def create_grid_square(G: nx.Graph, n=5, m=5, diagonals=0, skip_ngon=1):
     prev_new_nodes = create_path(G, n)
@@ -32,6 +44,20 @@ def create_grid_square(G: nx.Graph, n=5, m=5, diagonals=0, skip_ngon=1):
         all_new_nodes.extend(new_nodes)
         prev_new_nodes = new_nodes
     return all_new_nodes
+
+def graph_discard_dismantlable_nodes(G: nx.Graph):
+    find_corners(G)
+    update = True
+    while update:
+        update = False
+        for node in G.nodes:
+            if is_corner(G, node):
+                # print("corner removed", node)
+                G.remove_node(node)
+                find_corners(G)
+                update = True
+                break
+
 
 def create_grid_hex(G: nx.Graph, n=5, m=5):
     n = 2*n+1
@@ -56,7 +82,7 @@ def create_sample(G: nx.Graph):
 def mark_corner(G: nx.Graph, node: int):
     G.nodes[node]["title"] = "corner"
     G.nodes[node]["group"] = 2
-    print("corner marked:", node)
+    # print("corner marked:", node)
 
 def is_corner(G: nx.Graph, node: int) -> bool:
     return G.nodes[node].get("title", "") == "corner"
@@ -84,6 +110,4 @@ def find_corners(G: nx.Graph):
             for node in corner_coverage:
                 if not is_corner(G, node) and node not in candidates:
                     candidates.add(node)
-    print(G.nodes[5])
-
-
+    # print(G.nodes[5])
